@@ -8,6 +8,8 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs 
   message_generation #(Despite its name, message_generation works for both msg and srv.)
   dxl_serial
+  geometry_msgs
+  turtlesim
 )
 
 # for fatal error : ros/ros.h: No such file or directory #include “ros/ros.h” 
@@ -41,6 +43,15 @@ catkin_package(
   message_runtime
 )
 
+add_executable(turtletalker src/turtletalker.cpp)
+target_link_libraries(turtletalker ${catkin_LIBRARIES})
+add_dependencies(turtletalker ${PROJECT_NAME}_generate_messages_cpp)
+
+add_executable(turtlelistener src/turtlelistener.cpp)
+target_link_libraries(turtlelistener ${catkin_LIBRARIES})
+add_dependencies(turtlelistener ${PROJECT_NAME}_generate_messages_cpp)
+
+#######################
 add_executable(talker src/talker.cpp)
 target_link_libraries(talker ${catkin_LIBRARIES})
 add_dependencies(talker ${PROJECT_NAME}_generate_messages_cpp)
