@@ -51,10 +51,12 @@ add_executable(turtlelistener src/turtlelistener.cpp)
 target_link_libraries(turtlelistener ${catkin_LIBRARIES})
 add_dependencies(turtlelistener ${PROJECT_NAME}_generate_messages_cpp)
 
+
 #######################
 add_executable(talker src/talker.cpp)
 target_link_libraries(talker ${catkin_LIBRARIES})
 add_dependencies(talker ${PROJECT_NAME}_generate_messages_cpp)
+# add_dependencies(talker ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 # catkin 작업 공간 내에서 다른 패키지의 메시지를 사용하는 경우 catkin이 모든 프로젝트를 병렬로 빌드하기 때문에 해당 생성 대상에도 종속성을 추가해야 합니다. 
 
 add_executable(listener src/listener.cpp)

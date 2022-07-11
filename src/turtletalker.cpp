@@ -8,7 +8,7 @@ int main(int argc, char **argv)
 
   ros::NodeHandle nh;
 
-  ros::Publisher turtle_pub = nh.advertise<geometry_msgs::Twist>("turtle1/cmd_vel", 1000);
+  ros::Publisher turtle_pub = nh.advertise<geometry_msgs::Twist>("/turtle1/cmd_vel", 1000);
 
   ros::Rate loop_rate(1);
 

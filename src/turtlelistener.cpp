@@ -5,7 +5,7 @@ void poseCallback(const turtlesim::Pose::ConstPtr& msg)
 {
   ROS_INFO("x: [%f]", msg->x);
   ROS_INFO("y: [%f]", msg->y);
-  ROS_INFO("theta : [%lf", (*msg).theta);
+  ROS_INFO("theta : [%lf]", (*msg).theta);
 }
 
 int main(int argc, char **argv)
