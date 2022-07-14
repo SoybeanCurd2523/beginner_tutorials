@@ -20,7 +20,7 @@
   <!-- Optional attribute type can be: website, bugtracker, or repository -->
   <!-- Example: -->
   <!-- <url type="website">http://wiki.ros.org/beginner_tutorials</url> -->
-  <url type="website">https://github.com/SoybeanCurd2523/hello_world</url>
+  <url type="website">https://github.com/SoybeanCurd2523/beginner_tutorials</url>
 
   <!-- Author tags are optional, multiple are allowed, one per tag -->
   <!-- Authors do not have to be maintainers, but could be -->
@@ -52,24 +52,27 @@
   <build_depend>roscpp</build_depend>
   <build_depend>rospy</build_depend>
   <build_depend>std_msgs</build_depend>
-  <build_depend>dxl_serial</build_depend>
-  <!-- <build_depend>geometry_msgs</build_depend> -->
 
   <build_export_depend>roscpp</build_export_depend>
   <build_export_depend>rospy</build_export_depend>
   <build_export_depend>std_msgs</build_export_depend>
-  <build_export_depend>dxl_serial</build_export_depend>
-  <!-- <build_export_depend>geometry_msgs</build_export_depend> -->
 
   <exec_depend>roscpp</exec_depend>
   <exec_depend>rospy</exec_depend>
   <exec_depend>std_msgs</exec_depend>
-  <exec_depend>dxl_serial</exec_depend>
-  <!-- <exec_depend>geometry_msgs</exec_depend> -->
 
   <!-- for msg file to transform c++ or python source code -->
   <build_depend>message_generation</build_depend>
 	<exec_depend>message_runtime</exec_depend>
+
+
+
+  <depend>dxl_serial</depend>
+  <depend>dynamixel_sdk</depend>
+  <depend>geometry_msgs</depend>
+  <depend>turtlesim</depend>
+
+
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>

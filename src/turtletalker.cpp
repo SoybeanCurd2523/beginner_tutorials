@@ -3,9 +3,8 @@
 
 int main(int argc, char **argv)
 { 
-
   ros::init(argc, argv, "turtletalker");
-
+  
   ros::NodeHandle nh;
 
   ros::Publisher turtle_pub = nh.advertise<geometry_msgs::Twist>("/turtle1/cmd_vel", 1000);
