@@ -27,6 +27,7 @@
 //
 
 #ifdef __linux__
+#include <ros/ros.h> ////
 #include <unistd.h>
 #include <fcntl.h>
 #include <termios.h>
@@ -57,60 +58,62 @@
 #define TORQUE_DISABLE                  0                   // Value for disabling the torque
 #define DXL_MINIMUM_POSITION_VALUE      0             // Dynamixel will rotate between this value
 #define DXL_MAXIMUM_POSITION_VALUE      4095              // and this value (note that the Dynamixel would not move when the position value is out of movable range. Check e-manual about the range of the Dynamixel you use.)
-#define DXL_MOVING_STATUS_THRESHOLD     20                  // Dynamixel moving status threshold
+#define DXL_MOVING_STATUS_THRESHOLD     1                  // Dynamixel moving status threshold
 
 #define ESC_ASCII_VALUE                 0x1b
 
-int getch()
-{
-#ifdef __linux__
-  struct termios oldt, newt;
-  int ch;
-  tcgetattr(STDIN_FILENO, &oldt);
-  newt = oldt;
-  newt.c_lflag &= ~(ICANON | ECHO);
-  tcsetattr(STDIN_FILENO, TCSANOW, &newt);
-  ch = getchar();
-  tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-  return ch;
-#elif defined(_WIN32) || defined(_WIN64)
-  return _getch();
-#endif
-}
+// int getch()
+// {
+// #ifdef __linux__
+//   struct termios oldt, newt;
+//   int ch;
+//   tcgetattr(STDIN_FILENO, &oldt);
+//   newt = oldt;
+//   newt.c_lflag &= ~(ICANON | ECHO);
+//   tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+//   ch = getchar();
+//   tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+//   return ch;
+// #elif defined(_WIN32) || defined(_WIN64)
+//   return _getch();
+// #endif
+// }
 
-int kbhit(void)
-{
-#ifdef __linux__
-  struct termios oldt, newt;
-  int ch;
-  int oldf;
+// int kbhit(void)
+// {
+// #ifdef __linux__
+//   struct termios oldt, newt;
+//   int ch;
+//   int oldf;
 
-  tcgetattr(STDIN_FILENO, &oldt);
-  newt = oldt;
-  newt.c_lflag &= ~(ICANON | ECHO);
-  tcsetattr(STDIN_FILENO, TCSANOW, &newt);
-  oldf = fcntl(STDIN_FILENO, F_GETFL, 0);
-  fcntl(STDIN_FILENO, F_SETFL, oldf | O_NONBLOCK);
+//   tcgetattr(STDIN_FILENO, &oldt);
+//   newt = oldt;
+//   newt.c_lflag &= ~(ICANON | ECHO);
+//   tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+//   oldf = fcntl(STDIN_FILENO, F_GETFL, 0);
+//   fcntl(STDIN_FILENO, F_SETFL, oldf | O_NONBLOCK);
 
-  ch = getchar();
+//   ch = getchar();
 
-  tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-  fcntl(STDIN_FILENO, F_SETFL, oldf);
+//   tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+//   fcntl(STDIN_FILENO, F_SETFL, oldf);
 
-  if (ch != EOF)
-  {
-    ungetc(ch, stdin);
-    return 1;
-  }
+//   if (ch != EOF)
+//   {
+//     ungetc(ch, stdin);
+//     return 1;
+//   }
 
-  return 0;
-#elif defined(_WIN32) || defined(_WIN64)
-  return _kbhit();
-#endif
-}
+//   return 0;
+// #elif defined(_WIN32) || defined(_WIN64)
+//   return _kbhit();
+// #endif
+// }
 
-int main()
-{
+int main(int argc, char **argv)
+{ 
+  ros::init(argc, argv, "read_write");
+  ros::NodeHandle nh;
   // Initialize PortHandler instance
   // Set the port path
   // Get methods and members of PortHandlerLinux or PortHandlerWindows
@@ -124,12 +127,14 @@ int main()
   int index = 0;
   int dxl_comm_result = COMM_TX_FAIL;             // Communication result
 //   int dxl_goal_position[2] = {DXL_MINIMUM_POSITION_VALUE, DXL_MAXIMUM_POSITION_VALUE};         // Goal position
-  int dxl_goal_position[2] = { 1024, 3072 };
+  // int dxl_goal_position[2] = { 1024, 3072 };
+  int dxl_goal_position = 0;
 
   uint8_t dxl_error = 0;                          // Dynamixel error
   int32_t dxl_present_position = 0;               // Present position
 
   // Open port
+  // portHandler->openPort()  :  성공하면 1, 실패하면 0
   if (portHandler->openPort())
   {
     printf("Succeeded to open the port!\n");
@@ -137,12 +142,13 @@ int main()
   else
   {
     printf("Failed to open the port!\n");
-    printf("Press any key to terminate...\n");
-    getch();
+    // printf("Press any key to terminate...\n");
+    // getch();
     return 0;
   }
 
   // Set port baudrate
+  // portHandler->setBaudRate(BAUDRATE) : 성공하면 1, 실패하면 0
   if (portHandler->setBaudRate(BAUDRATE))
   {
     printf("Succeeded to change the baudrate!\n");
@@ -150,8 +156,8 @@ int main()
   else
   {
     printf("Failed to change the baudrate!\n");
-    printf("Press any key to terminate...\n");
-    getch();
+    // printf("Press any key to terminate...\n");
+    // getch();
     return 0;
   }
 
@@ -163,21 +169,23 @@ int main()
   }
   else if (dxl_error != 0)
   {
-    packetHandler->getRxPacketError(dxl_error);
+    packetHandler->getRxPacketError(dxl_error);  // dxl_error : 이상이 없으면 0
   }
   else
   {
     printf("Dynamixel has been successfully connected \n");
   }
 
+  // ros::Rate loop_rate(1);
   while(1)
   {
-    printf("Press any key to continue! (or press ESC to quit!)\n");
-    if (getch() == ESC_ASCII_VALUE) //키보드를 통해서 입력받는 듯.
-      break;
+    ROS_INFO("dxl_goal_position : %d", dxl_goal_position);
+    // printf("Press any key to continue! (or press ESC to quit!)\n");
+    // if (getch() == ESC_ASCII_VALUE) //키보드를 통해서 입력받는 듯.
+    //   break;
 
     // Write goal position
-    dxl_comm_result = packetHandler->write4ByteTxRx(portHandler, DXL_ID, ADDR_PRO_GOAL_POSITION, dxl_goal_position[index], &dxl_error);
+    dxl_comm_result = packetHandler->write4ByteTxRx(portHandler, DXL_ID, ADDR_PRO_GOAL_POSITION, dxl_goal_position, &dxl_error); //잘되면 0을 반환
     if (dxl_comm_result != COMM_SUCCESS)
     {
       packetHandler->getTxRxResult(dxl_comm_result);
@@ -200,9 +208,9 @@ int main()
         packetHandler->getRxPacketError(dxl_error);
       }
 
-      printf("[ID:%03d] GoalPos:%03d  PresPos:%03d\n", DXL_ID, dxl_goal_position[index], dxl_present_position);
+      printf("[ID:%03d] GoalPos:%03d  PresPos:%03d\n", DXL_ID, dxl_goal_position, dxl_present_position);
 
-    }while((abs(dxl_goal_position[index] - dxl_present_position) > DXL_MOVING_STATUS_THRESHOLD));
+    }while((abs(dxl_goal_position - dxl_present_position) > DXL_MOVING_STATUS_THRESHOLD));
 
     // Change goal position
     if (index == 0)
@@ -213,6 +221,12 @@ int main()
     {
       index = 0;
     }
+
+    dxl_goal_position += 1000;
+    if(dxl_goal_position == 4000) { dxl_goal_position = 0; }
+
+    usleep(500000);
+    // loop_rate.sleep();
   }
 
   // Disable Dynamixel Torque

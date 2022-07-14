@@ -50,6 +50,10 @@ add_dependencies(read_write ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTE
 target_link_libraries(read_write ${catkin_LIBRARIES})
 
 
+add_executable(sync_write src/sync_write.cpp )
+add_dependencies(sync_write ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(sync_write ${catkin_LIBRARIES})
+
 ###################################
 
 add_executable(talker src/talker.cpp)
