@@ -62,6 +62,7 @@
 
 #define ESC_ASCII_VALUE                 0x1b
 
+#define PI 3.141592
 // int getch()
 // {
 // #ifdef __linux__
@@ -110,6 +111,7 @@
 // #endif
 // }
 
+
 int main(int argc, char **argv)
 { 
   ros::init(argc, argv, "read_write");
@@ -124,6 +126,8 @@ int main(int argc, char **argv)
   // Get methods and members of Protocol1PacketHandler or Protocol2PacketHandler
   dynamixel::PacketHandler *packetHandler = dynamixel::PacketHandler::getPacketHandler(PROTOCOL_VERSION);
 
+  double t=0.0;
+  int T=20;
   int index = 0;
   int dxl_comm_result = COMM_TX_FAIL;             // Communication result
 //   int dxl_goal_position[2] = {DXL_MINIMUM_POSITION_VALUE, DXL_MAXIMUM_POSITION_VALUE};         // Goal position
@@ -179,6 +183,7 @@ int main(int argc, char **argv)
   // ros::Rate loop_rate(1);
   while(1)
   {
+
     ROS_INFO("dxl_goal_position : %d", dxl_goal_position);
     // printf("Press any key to continue! (or press ESC to quit!)\n");
     // if (getch() == ESC_ASCII_VALUE) //키보드를 통해서 입력받는 듯.
@@ -195,8 +200,9 @@ int main(int argc, char **argv)
       packetHandler->getRxPacketError(dxl_error);
     }
 
-    do
-    {
+    sleep(0.1);
+    // do
+    // {
       // Read present position
       dxl_comm_result = packetHandler->read4ByteTxRx(portHandler, DXL_ID, ADDR_PRO_PRESENT_POSITION, (uint32_t*)&dxl_present_position, &dxl_error);
       if (dxl_comm_result != COMM_SUCCESS)
@@ -210,22 +216,33 @@ int main(int argc, char **argv)
 
       printf("[ID:%03d] GoalPos:%03d  PresPos:%03d\n", DXL_ID, dxl_goal_position, dxl_present_position);
 
-    }while((abs(dxl_goal_position - dxl_present_position) > DXL_MOVING_STATUS_THRESHOLD));
+    // }while((abs(dxl_goal_position - dxl_present_position) > DXL_MOVING_STATUS_THRESHOLD));
 
     // Change goal position
-    if (index == 0)
-    {
-      index = 1;
-    }
-    else
-    {
-      index = 0;
-    }
+    // if (index == 0)
+    // {
+    //   index = 1;
+    // }
+    // else
+    // {
+    //   index = 0;
+    // }
 
-    dxl_goal_position += 1000;
-    if(dxl_goal_position == 4000) { dxl_goal_position = 0; }
+    t += 0.1;
+    if(t > T) {t=0;}
+    
+    dxl_goal_position = ((4095-0)/2) * (1 - cos(2*PI*t/ T));
+    // 2*PI 인 이유는 4095 에 갔다가 0으로 다시 돌아와야 하기 때문
 
-    usleep(500000);
+    sleep(0.1);
+
+
+    // dxl_goal_position += 1000;
+    // if(dxl_goal_position == 4000) { dxl_goal_position = 0; }
+
+    // usleep(1000000);
+
+    // sleep(0.1);
     // loop_rate.sleep();
   }
 
@@ -245,6 +262,7 @@ int main(int argc, char **argv)
 
   return 0;
 }
+
 
 
 

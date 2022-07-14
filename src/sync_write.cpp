@@ -56,53 +56,53 @@
 
 #define ESC_ASCII_VALUE                 0x1b
 
-int getch()
-{
-#ifdef __linux__
-  struct termios oldt, newt;
-  int ch;
-  tcgetattr(STDIN_FILENO, &oldt);
-  newt = oldt;
-  newt.c_lflag &= ~(ICANON | ECHO);
-  tcsetattr(STDIN_FILENO, TCSANOW, &newt);
-  ch = getchar();
-  tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-  return ch;
-#elif defined(_WIN32) || defined(_WIN64)
-  return _getch();
-#endif
-}
+// int getch()
+// {
+// #ifdef __linux__
+//   struct termios oldt, newt;
+//   int ch;
+//   tcgetattr(STDIN_FILENO, &oldt);
+//   newt = oldt;
+//   newt.c_lflag &= ~(ICANON | ECHO);
+//   tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+//   ch = getchar();
+//   tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+//   return ch;
+// #elif defined(_WIN32) || defined(_WIN64)
+//   return _getch();
+// #endif
+// }
 
-int kbhit(void)
-{
-#ifdef __linux__
-  struct termios oldt, newt;
-  int ch;
-  int oldf;
+// int kbhit(void)
+// {
+// #ifdef __linux__
+//   struct termios oldt, newt;
+//   int ch;
+//   int oldf;
 
-  tcgetattr(STDIN_FILENO, &oldt);
-  newt = oldt;
-  newt.c_lflag &= ~(ICANON | ECHO);
-  tcsetattr(STDIN_FILENO, TCSANOW, &newt);
-  oldf = fcntl(STDIN_FILENO, F_GETFL, 0);
-  fcntl(STDIN_FILENO, F_SETFL, oldf | O_NONBLOCK);
+//   tcgetattr(STDIN_FILENO, &oldt);
+//   newt = oldt;
+//   newt.c_lflag &= ~(ICANON | ECHO);
+//   tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+//   oldf = fcntl(STDIN_FILENO, F_GETFL, 0);
+//   fcntl(STDIN_FILENO, F_SETFL, oldf | O_NONBLOCK);
 
-  ch = getchar();
+//   ch = getchar();
 
-  tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-  fcntl(STDIN_FILENO, F_SETFL, oldf);
+//   tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+//   fcntl(STDIN_FILENO, F_SETFL, oldf);
 
-  if (ch != EOF)
-  {
-    ungetc(ch, stdin);
-    return 1;
-  }
+//   if (ch != EOF)
+//   {
+//     ungetc(ch, stdin);
+//     return 1;
+//   }
 
-  return 0;
-#elif defined(_WIN32) || defined(_WIN64)
-  return _kbhit();
-#endif
-}
+//   return 0;
+// #elif defined(_WIN32) || defined(_WIN64)
+//   return _kbhit();
+// #endif
+// }
 
 int main(int argc, char **argv)
 {
@@ -128,7 +128,7 @@ int main(int argc, char **argv)
   int dxl_comm_result = COMM_TX_FAIL;             // Communication result
   bool dxl_addparam_result = false;                // addParam result
   bool dxl_getdata_result = false;                 // GetParam result
-  int dxl_goal_position[2] = {0, 3015};         // Goal position
+  int dxl_goal_position[2] = {0, 4095};         // Goal position
 
   uint8_t dxl_error = 0;                          // Dynamixel error
   uint8_t param_goal_position[4];
@@ -209,11 +209,11 @@ int main(int argc, char **argv)
     return 0;
   }
 
-  while(1)
+  while(ros::ok())
   {
-    printf("Press any key to continue! (or press ESC to quit!)\n");
-    if (getch() == ESC_ASCII_VALUE)
-      break;
+    // printf("Press any key to continue! (or press ESC to quit!)\n");
+    // if (getch() == ESC_ASCII_VALUE)
+    //   break;
 
 /*
 3015 는 16진수로 bc7 인데
@@ -223,14 +223,14 @@ int main(int argc, char **argv)
     // Allocate goal position value into byte array
     param_goal_position[0] = DXL_LOBYTE(DXL_LOWORD(dxl_goal_position[index]));
     param_goal_position[1] = DXL_HIBYTE(DXL_LOWORD(dxl_goal_position[index]));
-    // param_goal_position[2] = DXL_LOBYTE(DXL_HIWORD(dxl_goal_position[index]));
-    // param_goal_position[3] = DXL_HIBYTE(DXL_HIWORD(dxl_goal_position[index]));
+    param_goal_position[2] = DXL_LOBYTE(DXL_HIWORD(dxl_goal_position[index]));
+    param_goal_position[3] = DXL_HIBYTE(DXL_HIWORD(dxl_goal_position[index]));
 
-    for(int i=0; i<=3 ; i++){
-        ROS_INFO("param_goal_position[%d] : %x", param_goal_position[i], param_goal_position[i]);
+    for(int i=0; i< 4 ; i++){
+        ROS_INFO("param_goal_position[%d] : %x", i, param_goal_position[i]);
     }
 
-    
+
     // Add Dynamixel#1 goal position value to the Syncwrite storage
     dxl_addparam_result = groupSyncWrite.addParam(DXL1_ID, param_goal_position);
     if (dxl_addparam_result != true)
@@ -295,6 +295,10 @@ int main(int argc, char **argv)
     {
       index = 0;
     }
+
+    // dxl_goal_position[0] +=500;
+    // dxl_goal_position[1] -= 
+    usleep(1000000);
   }
 
   // Disable Dynamixel#1 Torque
