@@ -39,6 +39,7 @@
 #include <stdio.h>
 
 #include "dynamixel_sdk/dynamixel_sdk.h"                                  // Uses DYNAMIXEL SDK library
+#include "std_msgs/Int32.h"
 
 // Control table address
 #define ADDR_PRO_TORQUE_ENABLE          64                 // Control table address is different in Dynamixel model
@@ -116,6 +117,8 @@ int main(int argc, char **argv)
 { 
   ros::init(argc, argv, "read_write");
   ros::NodeHandle nh;
+  ros::Publisher read_write_pub = nh.advertise<std_msgs::Int32>("dxl_goal_position", 1000);
+
   // Initialize PortHandler instance
   // Set the port path
   // Get methods and members of PortHandlerLinux or PortHandlerWindows
@@ -181,9 +184,11 @@ int main(int argc, char **argv)
   }
 
   // ros::Rate loop_rate(1);
-  while(1)
+  while(ros::ok())
   {
-
+    std_msgs::Int32 msg;
+    msg.data = dxl_goal_position;
+    read_write_pub.publish(msg);
     ROS_INFO("dxl_goal_position : %d", dxl_goal_position);
     // printf("Press any key to continue! (or press ESC to quit!)\n");
     // if (getch() == ESC_ASCII_VALUE) //키보드를 통해서 입력받는 듯.

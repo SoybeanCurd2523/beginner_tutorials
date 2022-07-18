@@ -1,8 +1,8 @@
 #include "ros/ros.h"
 #include "std_msgs/Int32.h"
-
+#include <time.h>
 // #include <dynamixel_sdk/dynamixel_sdk.h>
-#include <dxl_serial/dxl_serial.h>
+// #include <dxl_serial/dxl_serial.h>
 
 int main(int argc, char **argv)
 { 

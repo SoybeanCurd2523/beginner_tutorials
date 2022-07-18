@@ -129,6 +129,7 @@ int main(int argc, char **argv)
   bool dxl_addparam_result = false;                // addParam result
   bool dxl_getdata_result = false;                 // GetParam result
   int dxl_goal_position[2] = {0, 4095};         // Goal position
+  // int dxl_goal_position[2] = {DXL_MINIMUM_POSITION_VALUE, DXL_MAXIMUM_POSITION_VALUE};
 
   uint8_t dxl_error = 0;                          // Dynamixel error
   uint8_t param_goal_position[4];
@@ -298,7 +299,7 @@ int main(int argc, char **argv)
 
     // dxl_goal_position[0] +=500;
     // dxl_goal_position[1] -= 
-    usleep(1000000);
+    // usleep(1000000);
   }
 
   // Disable Dynamixel#1 Torque
